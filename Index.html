@@ -46,6 +46,13 @@ label{display:block;font-size:10px;font-weight:bold;color:#506273;margin-bottom:
   <span id="userEmail"></span>
   <button class="secondary" onclick="logout()">Изход</button>
 </div>
+<div class="user-bar no-print" id="quickActions" style="display:none;position:fixed;left:8px;right:8px;bottom:8px;z-index:10001;justify-content:center;flex-wrap:wrap;gap:6px;background:#fff;border:2px solid #123b60;border-radius:12px;box-shadow:0 4px 18px #0004;padding:10px">
+  <button type="button" onclick="newProtocol()">Нов протокол</button>
+  <button type="button" onclick="save()">Запиши</button>
+  <button type="button" onclick="openArchive()">Архив</button>
+  <button type="button" onclick="printProtocol()">Печат / PDF</button>
+  <button type="button" onclick="shareProtocol()">Изпрати файл</button>
+</div>
 <main>
 <div class="sheet" id="sheet">
 <div class="title"><h2 data-bg="ПРОТОКОЛ ЗА ГАЗОВИ ИЗМЕРВАНИЯ" data-en="GAS MEASUREMENT PROTOCOL">ПРОТОКОЛ ЗА ГАЗОВИ ИЗМЕРВАНИЯ</h2><small>№ <input id="pno" style="width:105px;display:inline-block"> &nbsp; <span data-bg="Дата" data-en="Date">Дата</span> <span style="display:inline-flex;align-items:center;gap:4px"><input id="date" type="text" inputmode="numeric" placeholder="ДД.ММ.ГГГГ" maxlength="10" style="width:130px;display:inline-block" autocomplete="off"><button type="button" class="no-print" title="Избери дата" onclick="openDatePicker()">📅</button><input id="datePicker" type="date" class="no-print" style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none" tabindex="-1"></span></small></div>
@@ -126,9 +133,16 @@ async function authMain(){
     }
   }catch(e){authMessage(e.message||'Грешка при вход.');}
 }
-async function onSignedIn(user){currentUser=user;$('authGate').style.display='none';$('userBar').style.display='flex';$('userEmail').textContent=user.email||'';await loadCloud();}
-async function logout(){await sb.auth.signOut();currentUser=null;$('userBar').style.display='none';$('authGate').style.display='flex';$('authPassword').value='';$('authPassword2').value='';authMessage('');}
-function continueOffline(){$('authGate').style.display='none';$('userBar').style.display='flex';$('userEmail').textContent='Офлайн режим';}
+async function onSignedIn(user){
+  currentUser=user;
+  $('authGate').style.display='none';
+  $('userBar').style.display='flex';
+  $('quickActions').style.display='flex';
+  $('userEmail').textContent=user.email||'';
+  try{await loadCloud()}catch(e){console.warn('Cloud archive unavailable; continuing locally',e)}
+}
+async function logout(){await sb.auth.signOut();currentUser=null;$('userBar').style.display='none';$('quickActions').style.display='none';$('authGate').style.display='flex';$('authPassword').value='';$('authPassword2').value='';authMessage('');}
+function continueOffline(){$('authGate').style.display='none';$('userBar').style.display='flex';$('quickActions').style.display='flex';$('userEmail').textContent='Офлайн режим';}
 async function loadCloud(){
   if(!currentUser)return;
   const {data,error}=await sb.from('protocols').select('*').eq('user_id',currentUser.id).order('saved_at',{ascending:false});
