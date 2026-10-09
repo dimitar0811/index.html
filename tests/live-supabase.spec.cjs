@@ -9,8 +9,8 @@ const accountB = {
   password: process.env.SUPABASE_TEST_PASSWORD_B
 };
 
-test.skip(!accountA.email || !accountA.password || !accountB.email || !accountB.password,
-  'Requires two dedicated test accounts configured as repository secrets.');
+test.skip(process.env.RUN_LIVE_SUPABASE_TESTS !== 'true' || !accountA.email || !accountA.password || !accountB.email || !accountB.password,
+  'Enable RUN_LIVE_SUPABASE_TESTS and configure two dedicated test accounts as repository secrets.');
 
 async function login(page, account) {
   await page.goto('/');
@@ -30,8 +30,8 @@ test('Cloud record is available to the same account in a fresh browser session',
     await login(page1, accountA);
     await page1.locator('#pno').fill(pno);
     await page1.locator('#client').fill('Automated cloud test only');
-    await page1.locator('#quickActions').getByRole('button', { name: 'Запиши' }).click();
     page1.once('dialog', d => d.accept());
+    await page1.locator('#quickActions').getByRole('button', { name: 'Запиши' }).click();
     await expect.poll(() => page1.evaluate(n => JSON.parse(localStorage.getItem('gasProtocolArchive') || '[]').some(x => x.pno === n), pno)).toBe(true);
     await login(page2, accountA);
     await expect.poll(() => page2.evaluate(n => JSON.parse(localStorage.getItem('gasProtocolArchive') || '[]').some(x => x.pno === n), pno), { timeout: 20000 }).toBe(true);
