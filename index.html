@@ -158,7 +158,12 @@ async function saveCloud(d){
   if(error){console.warn('Cloud save failed; local copy remains available',error);return false}
   return true;
 }
-async function deleteCloud(d){if(!currentUser||!d?.pno)return;await sb.from('protocols').delete().eq('user_id',currentUser.id).eq('pno',d.pno)}
+async function deleteCloud(d){
+  if(!currentUser||!d?.pno)return true;
+  const {error}=await sb.from('protocols').delete().eq('user_id',currentUser.id).eq('pno',d.pno);
+  if(error)throw error;
+  return true;
+}
 
 function calc(){$('cu').textContent=(num('c2')-num('c1')).toFixed(3)+' m³';$('mu').textContent=(num('m2')-num('m1')).toFixed(3)+' m³'}
 ['c1','c2','m1','m2'].forEach(id=>$(id).addEventListener('input',calc));
