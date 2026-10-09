@@ -170,7 +170,7 @@ test('FILE-01: export downloads a standalone HTML file', async ({ page }) => {
   const downloadPromise = page.waitForEvent('download');
   await page.locator('main').getByRole('button', { name: 'Изпрати като файл', exact: true }).click();
   const download = await downloadPromise;
-  expect(download.suggestedFilename()).toMatch(/^gas-protocol-.*\\.html$/);
+  expect(download.suggestedFilename()).toMatch(/^gas-protocol-.*\.html$/);
 });
 
 test('CLOUD-01 and CLOUD-03: mocked login and cloud failure preserve local protocol data', async ({ page }) => {
