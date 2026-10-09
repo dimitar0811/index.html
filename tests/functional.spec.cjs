@@ -64,6 +64,7 @@ test('CALC-04: negative usage is displayed as documented', async ({ page }) => {
 
 test('DATE-01 and DATE-02: date pickers format dates as DD.MM.YYYY', async ({ page }) => {
   for (const pair of [['datePicker','date','2026-03-04','04.03.2026'],['cdPicker','cd','2026-12-25','25.12.2026'],['mdPicker','md','2027-01-09','09.01.2027']]) {
+    if (pair[1] !== 'date') await page.locator('#' + pair[1]).click();
     await page.locator('#' + pair[0]).evaluate((el, value) => {
       el.value = value; el.dispatchEvent(new Event('change', { bubbles: true }));
     }, pair[2]);
@@ -73,7 +74,7 @@ test('DATE-01 and DATE-02: date pickers format dates as DD.MM.YYYY', async ({ pa
 
 test('SAVE-01: client/company is required before saving', async ({ page }) => {
   page.on('dialog', dialog => dialog.accept());
-  await page.getByRole('button', { name: 'Запиши', exact: true }).click();
+  await page.locator('main').getByRole('button', { name: 'Запиши', exact: true }).click();
   await expect(page.locator('#pno')).toHaveValue('');
   await expect.poll(() => page.evaluate(() => localStorage.getItem('gasProtocolArchive'))).toBeNull();
 });
@@ -83,7 +84,7 @@ test('SAVE-02 and PERSIST-01: protocol saves locally and survives reload', async
   await page.locator('#client').fill('Тестова фирма');
   await page.locator('#site').fill('Тестов обект');
   await page.locator('#c1').fill('100'); await page.locator('#c2').fill('105.25');
-  await page.getByRole('button', { name: 'Запиши', exact: true }).click();
+  await page.locator('main').getByRole('button', { name: 'Запиши', exact: true }).click();
   await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('gasProtocolArchive') || '[]').length)).toBe(1);
   const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('gasProtocolV2') || '{}'));
   expect(saved.client).toBe('Тестова фирма'); expect(saved.site).toBe('Тестов обект');
@@ -96,24 +97,24 @@ test('SAVE-02 and PERSIST-01: protocol saves locally and survives reload', async
 test('SAVE-03: same protocol number updates the existing archive record', async ({ page }) => {
   page.on('dialog', dialog => dialog.accept());
   await page.locator('#client').fill('Фирма за обновяване'); await page.locator('#pno').fill('QA-UPDATE-001');
-  await page.getByRole('button', { name: 'Запиши', exact: true }).click();
+  await page.locator('main').getByRole('button', { name: 'Запиши', exact: true }).click();
   await page.locator('#site').fill('Нов адрес');
-  await page.getByRole('button', { name: 'Запиши', exact: true }).click();
+  await page.locator('main').getByRole('button', { name: 'Запиши', exact: true }).click();
   const result = await page.evaluate(() => JSON.parse(localStorage.getItem('gasProtocolArchive') || '[]'));
   expect(result).toHaveLength(1); expect(result[0].site).toBe('Нов адрес');
 });
 
 test('ARCH-01 to ARCH-03: empty archive, open a record and delete it', async ({ page }) => {
-  await page.getByRole('button', { name: 'Архив', exact: true }).click();
+  await page.locator('main').getByRole('button', { name: 'Архив', exact: true }).click();
   await expect(page.locator('#archiveList')).toContainText('Все още няма записани протоколи');
   await page.locator('#client').fill('Фирма архив');
   page.on('dialog', dialog => dialog.accept());
-  await page.getByRole('button', { name: 'Запиши', exact: true }).click();
-  await page.getByRole('button', { name: 'Архив', exact: true }).click();
+  await page.locator('main').getByRole('button', { name: 'Запиши', exact: true }).click();
+  await page.locator('main').getByRole('button', { name: 'Архив', exact: true }).click();
   await expect(page.locator('#archiveList')).toContainText('Фирма архив');
   await page.locator('#archiveList').getByRole('button', { name: 'Отвори' }).click();
   await expect(page.locator('#client')).toHaveValue('Фирма архив');
-  await page.getByRole('button', { name: 'Архив', exact: true }).click();
+  await page.locator('main').getByRole('button', { name: 'Архив', exact: true }).click();
   await page.locator('#archiveList').getByRole('button', { name: 'Изтрий' }).click();
   await expect(page.locator('#archiveList')).toContainText('Все още няма записани протоколи');
 });
@@ -122,8 +123,8 @@ test('NEW-01 and NEW-02: new protocol carries forward repeat-customer readings',
   page.on('dialog', dialog => dialog.accept());
   await page.locator('#client').fill('Постоянен клиент'); await page.locator('#site').fill('Основен обект');
   await page.locator('#c2').fill('45.125'); await page.locator('#m2').fill('91.500');
-  await page.getByRole('button', { name: 'Запиши', exact: true }).click();
-  await page.getByRole('button', { name: 'Нов протокол', exact: true }).click();
+  await page.locator('main').getByRole('button', { name: 'Запиши', exact: true }).click();
+  await page.locator('main').getByRole('button', { name: 'Нов протокол', exact: true }).click();
   await expect(page.locator('#client')).toHaveValue('Постоянен клиент');
   await expect(page.locator('#site')).toHaveValue('Основен обект');
   await expect(page.locator('#c1')).toHaveValue('45.125'); await expect(page.locator('#m1')).toHaveValue('91.500');
@@ -134,8 +135,8 @@ test('SECURITY-01: archive displays markup-looking client input as text', async 
   page.on('dialog', dialog => dialog.accept());
   const payload = '<img src=x onerror=alert(1)> & "quoted"';
   await page.locator('#client').fill(payload);
-  await page.getByRole('button', { name: 'Запиши', exact: true }).click();
-  await page.getByRole('button', { name: 'Архив', exact: true }).click();
+  await page.locator('main').getByRole('button', { name: 'Запиши', exact: true }).click();
+  await page.locator('main').getByRole('button', { name: 'Архив', exact: true }).click();
   await expect(page.locator('#archiveList img')).toHaveCount(0);
   await expect(page.locator('#archiveList')).toContainText(payload);
 });
@@ -156,10 +157,10 @@ test('SIG-01 and SIG-02: signature canvas applies a drawn signature and supports
 test('PRINT-01: print requires client and invokes browser print for valid input', async ({ page }) => {
   page.on('dialog', dialog => dialog.accept());
   await page.evaluate(() => { window.__printed = false; window.print = () => { window.__printed = true; }; });
-  await page.getByRole('button', { name: 'Печат / PDF', exact: true }).click();
+  await page.locator('main').getByRole('button', { name: 'Печат / PDF', exact: true }).click();
   await expect.poll(() => page.evaluate(() => window.__printed)).toBe(false);
   await page.locator('#client').fill('Фирма за печат');
-  await page.getByRole('button', { name: 'Печат / PDF', exact: true }).click();
+  await page.locator('main').getByRole('button', { name: 'Печат / PDF', exact: true }).click();
   await expect.poll(() => page.evaluate(() => window.__printed)).toBe(true);
 });
 
@@ -167,7 +168,7 @@ test('FILE-01: export downloads a standalone HTML file', async ({ page }) => {
   page.on('dialog', dialog => dialog.accept());
   await page.locator('#client').fill('Фирма за файл');
   const downloadPromise = page.waitForEvent('download');
-  await page.getByRole('button', { name: 'Изпрати файл', exact: true }).click();
+  await page.locator('main').getByRole('button', { name: 'Изпрати като файл', exact: true }).click();
   const download = await downloadPromise;
   expect(download.suggestedFilename()).toMatch(/^gas-protocol-.*\\.html$/);
 });
@@ -180,7 +181,7 @@ test('CLOUD-01 and CLOUD-03: mocked login and cloud failure preserve local proto
   await page.evaluate(() => { window.__testCloudError = true; });
   page.on('dialog', dialog => dialog.accept());
   await page.locator('#client').fill('Облачен тест');
-  await page.getByRole('button', { name: 'Запиши', exact: true }).click();
+  await page.locator('main').getByRole('button', { name: 'Запиши', exact: true }).click();
   await expect.poll(() => page.evaluate(() => localStorage.getItem('gasProtocolArchive'))).toContain('Облачен тест');
   expect(await page.evaluate(() => JSON.parse(localStorage.getItem('gasProtocolV2')).client)).toBe('Облачен тест');
 });
