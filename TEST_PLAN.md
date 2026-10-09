@@ -59,6 +59,23 @@ This is an educational QA/portfolio test plan for the Gas Measurement Protocols 
 - A negative meter/corrector reading difference is currently displayed as a negative usage value; confirm the desired business rule.
 - Calendar picker behavior varies across mobile browsers and needs real-device verification.
 
+## Static source audit (2026-10-09)
+
+The following source-level checks passed after the code fixes. These are static checks, not end-to-end browser tests.
+
+- [x] All 19 unique inline button handler names match declared JavaScript functions.
+- [x] All 40 JavaScript-referenced HTML element IDs exist.
+- [x] Quick-action toolbar no longer has an inline `display:none!important` rule that blocks JavaScript from showing it.
+- [x] Calculation inputs for both devices are wired to input events.
+- [x] Save flow distinguishes local success from cloud-save failure.
+- [x] File-share flow no longer triggers a second save dialog from inside the export function.
+- [x] Print action checks for a client/company before opening the print dialog.
+- [x] Cloud deletion errors have an explicit error path.
+- [x] Date formatting helper is present.
+- [x] Archive output escapes user-entered text.
+
+Live login, registration, Supabase database permissions, real file sharing, PDF printing, signatures, and mobile-device behavior still require manual browser/device testing. They are not marked as passed here.
+
 ## Execution record
 
 Use this section to record actual results during browser testing. Do not mark a case Pass unless it was executed.
