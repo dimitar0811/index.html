@@ -30,11 +30,11 @@ jobs:
           const fs = require('fs');
           const vm = require('vm');
           const html = fs.readFileSync('index.html', 'utf8');
-          const scripts = [...html.matchAll(/<script\\b[^>]*>([\\s\\S]*?)<\\/script>/gi)]
-            .map(m => m[1]).filter(s => s.trim());
-          if (!scripts.length) throw new Error('No inline JavaScript found');
-          scripts.forEach((s, i) => new vm.Script(s, { filename: 'inline-script-' + (i + 1) + '.js' }));
-          console.log('Syntax passed for ' + scripts.length + ' inline script(s).');
+          const scripts = html.match(/<script[^>]*>[\s\S]*?<\/script>/gi) || [];
+          const inline = scripts.map(s => s.replace(/^<script[^>]*>/i, '').replace(/<\/script>$/i, '')).filter(s => s.trim());
+          if (!inline.length) throw new Error('No inline JavaScript found');
+          inline.forEach((source, i) => new vm.Script(source, { filename: 'inline-script-' + (i + 1) + '.js' }));
+          console.log('Syntax passed for ' + inline.length + ' inline script(s).');
           NODE
       - name: Install test dependencies
         run: npm install
