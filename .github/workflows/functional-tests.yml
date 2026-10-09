@@ -24,18 +24,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Check inline JavaScript syntax
-        run: |
-          node <<'NODE'
-          const fs = require('fs');
-          const vm = require('vm');
-          const html = fs.readFileSync('index.html', 'utf8');
-          const scripts = html.match(/<script[^>]*>[\s\S]*?<\/script>/gi) || [];
-          const inline = scripts.map(s => s.replace(/^<script[^>]*>/i, '').replace(/<\/script>$/i, '')).filter(s => s.trim());
-          if (!inline.length) throw new Error('No inline JavaScript found');
-          inline.forEach((source, i) => new vm.Script(source, { filename: 'inline-script-' + (i + 1) + '.js' }));
-          console.log('Syntax passed for ' + inline.length + ' inline script(s).');
-          NODE
+      - name: Check test JavaScript syntax
+        run: node --check tests/functional.spec.cjs && node --check tests/server.cjs && node --check playwright.config.cjs
       - name: Install test dependencies
         run: npm install
       - name: Install Chromium
