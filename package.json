@@ -1,0 +1,7 @@
+{
+  "name": "gas-measurement-protocols",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": { "test": "playwright test", "test:report": "playwright test --reporter=list" },
+  "devDependencies": { "@playwright/test": "^1.55.0" }
+}
