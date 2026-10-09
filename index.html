@@ -47,11 +47,11 @@ label{display:block;font-size:10px;font-weight:bold;color:#506273;margin-bottom:
   <button class="secondary" onclick="logout()">Изход</button>
 </div>
 <div class="user-bar no-print" id="quickActions" style="display:none;position:fixed;left:8px;right:8px;bottom:8px;z-index:10001;justify-content:center;flex-wrap:wrap;gap:6px;background:#fff;border:2px solid #123b60;border-radius:12px;box-shadow:0 4px 18px #0004;padding:10px">
-  <button type="button" onclick="newProtocol()">Нов протокол</button>
-  <button type="button" onclick="save()">Запиши</button>
-  <button type="button" onclick="openArchive()">Архив</button>
-  <button type="button" onclick="printProtocol()">Печат / PDF</button>
-  <button type="button" onclick="shareProtocol()">Изпрати файл</button>
+  <button type="button" onclick="newProtocol()" data-bg="Нов протокол" data-en="New protocol">Нов протокол</button>
+  <button type="button" onclick="save()" data-bg="Запиши" data-en="Save">Запиши</button>
+  <button type="button" onclick="openArchive()" data-bg="Архив" data-en="Archive">Архив</button>
+  <button type="button" onclick="printProtocol()" data-bg="Печат / PDF" data-en="Print / PDF">Печат / PDF</button>
+  <button type="button" onclick="shareProtocol()" data-bg="Изпрати файл" data-en="Send file">Изпрати файл</button>
 </div>
 <main>
 <div class="sheet" id="sheet">
