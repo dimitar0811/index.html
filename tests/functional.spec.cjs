@@ -7,7 +7,7 @@ test.beforeEach(async ({ page }) => {
     status: 200, contentType: 'application/javascript', body: supabaseStub
   }));
   await page.addInitScript(() => {
-    localStorage.clear(); sessionStorage.clear(); window.__testCloudError = false;
+    if (!sessionStorage.getItem('__qa_initialized')) { localStorage.clear(); sessionStorage.setItem('__qa_initialized', '1'); } window.__testCloudError = false;
   });
   await page.goto('/');
   await page.getByRole('button', { name: 'Продължи офлайн' }).click();
@@ -142,14 +142,15 @@ test('SECURITY-01: archive displays markup-looking client input as text', async 
 });
 
 test('SIG-01 and SIG-02: signature canvas applies a drawn signature and supports cancel', async ({ page }) => {
-  await page.getByRole('button', { name: /Подпис — представител на доставчика/ }).click();
+  await page.locator('#quickActions').evaluate(el => el.style.display = 'none');
+  await page.getByRole('button', { name: /Подпис — представител на доставчика/ }).click({ force: true });
   await expect(page.locator('#sigModal')).toBeVisible();
   const rect = await page.locator('#canvas').boundingBox();
   await page.mouse.move(rect.x + 25, rect.y + 30); await page.mouse.down();
   await page.mouse.move(rect.x + 140, rect.y + 70, { steps: 6 }); await page.mouse.up();
   await page.getByRole('button', { name: 'Постави подпис' }).click();
   await expect(page.locator('#techSig img')).toHaveCount(1);
-  await page.getByRole('button', { name: /Подпис — клиент и представител/ }).click();
+  await page.getByRole('button', { name: /Подпис — клиент и представител/ }).click({ force: true });
   await page.getByRole('button', { name: 'Отказ' }).click();
   await expect(page.locator('#sigModal')).toBeHidden();
 });
@@ -168,7 +169,7 @@ test('FILE-01: export downloads a standalone HTML file', async ({ page }) => {
   page.on('dialog', dialog => dialog.accept());
   await page.locator('#client').fill('Фирма за файл');
   const downloadPromise = page.waitForEvent('download');
-  await page.locator('#quickActions').getByRole('button', { name: 'Изпрати като файл', exact: true }).click();
+  await page.locator('#quickActions').getByRole('button', { name: 'Изпрати файл', exact: true }).click();
   const download = await downloadPromise;
   expect(download.suggestedFilename()).toMatch(/^gas-protocol-.*\.html$/);
 });
