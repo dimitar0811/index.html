@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="bg">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,interactive-widget=resizes-content">
 <title>Gas Protocol / Газов протокол</title>
 <style>
 *{box-sizing:border-box}body{margin:0;background:#eef3f7;color:#172536;font-family:Arial,sans-serif}
@@ -23,7 +23,7 @@ label{display:block;font-size:10px;font-weight:bold;color:#506273;margin-bottom:
 
 .auth-gate{position:fixed;inset:0;background:rgba(0,0,0,.48);z-index:9999;display:flex;align-items:center;justify-content:center;padding:18px}
 .auth-card{background:#fff;width:min(420px,100%);border-radius:16px;padding:24px;box-shadow:0 12px 40px rgba(0,0,0,.25);text-align:center}
-.auth-card h2{margin:0 0 6px}.auth-card p{margin:0 0 18px;color:#555}.auth-card input{width:100%;box-sizing:border-box;margin:7px 0;padding:13px;border:1px solid #bbb;border-radius:8px;font-size:16px}.auth-card button{width:100%;margin-top:8px;padding:12px;border-radius:8px;font-size:16px}.auth-card #authMsg{min-height:24px;margin-top:12px;font-size:14px}.user-bar{display:flex;justify-content:flex-end;align-items:center;gap:10px;padding:8px 12px;background:#f2f2f2;font-size:13px}.user-bar button{width:auto;margin:0;padding:6px 12px}
+.auth-card h2{margin:0 0 6px}.auth-card p{margin:0 0 18px;color:#555}.auth-card input{width:100%;box-sizing:border-box;margin:7px 0;padding:13px;border:1px solid #bbb;border-radius:8px;font-size:16px}.auth-card button{width:100%;margin-top:8px;padding:12px;border-radius:8px;font-size:16px}.auth-card #authMsg{min-height:24px;margin-top:12px;font-size:14px}.user-bar{display:flex;justify-content:flex-end;align-items:center;gap:10px;padding:8px 12px;background:#f2f2f2;font-size:13px}.user-bar button{width:auto;margin:0;padding:6px 12px}/* Keep floating controls away from the Android keyboard while typing. */body.keyboard-open #quickActions{display:none!important}body.keyboard-open .user-bar{display:none!important}input,textarea{scroll-margin-bottom:24px}
 </style>
 <style>.date-wrap{display:flex;align-items:center;gap:4px}.date-wrap input[type=text]{flex:1}.date-btn{padding:6px 8px;cursor:pointer}.date-native{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}</style><style>input,textarea,button{font-family:Arial,sans-serif}input:focus,textarea:focus{outline:2px solid #1769aa}</style></head>
 <body>
@@ -238,5 +238,21 @@ $('date').value=new Date().toLocaleDateString('bg-BG',{day:'2-digit',month:'2-di
 function pickDate(id){const p=$(id+'Picker');p.value=toISODate($(id).value)||'';p.showPicker?p.showPicker():p.click();p.onchange=()=>{$(id).value=formatBGDate(p.value);};}
 function wireDates(){['date','cd','cv','md','mv'].forEach(id=>{let e=$(id);if(!e)return;e.addEventListener('click',()=>{if(id!=='date')pickDate(id)});});}
 wireDates();
+// Android mobile keyboard support: hide fixed overlays when the keyboard resizes
+// the visual viewport, so language-switch controls remain tappable.
+(function(){
+  const vv=window.visualViewport;
+  function updateKeyboardState(){
+    const active=document.activeElement;
+    const editing=active && (active.tagName==='INPUT' || active.tagName==='TEXTAREA');
+    const keyboardLikely=!!editing && vv && (window.innerHeight-vv.height>120 || vv.offsetTop>0);
+    document.body.classList.toggle('keyboard-open',!!keyboardLikely);
+  }
+  if(vv){vv.addEventListener('resize',updateKeyboardState);vv.addEventListener('scroll',updateKeyboardState);}
+  document.addEventListener('focusin',updateKeyboardState);
+  document.addEventListener('focusout',()=>setTimeout(updateKeyboardState,250));
+  window.addEventListener('resize',updateKeyboardState);
+  updateKeyboardState();
+})();
 </script>
 </body></html>
